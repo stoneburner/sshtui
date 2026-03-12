@@ -4,11 +4,11 @@ mod config;
 
 use clap::Parser;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
+use ratatui::backend::CrosstermBackend;
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap};
-use ratatui::backend::CrosstermBackend;
 use ratatui::{Frame, Terminal};
 use std::io::{self, Stdout};
 use std::path::PathBuf;
@@ -83,35 +83,25 @@ impl App {
     }
 
     fn selected_entry(&self) -> Option<&HostEntry> {
-        self.list_state
-            .selected()
-            .and_then(|i| self.hosts.get(i))
+        self.list_state.selected().and_then(|i| self.hosts.get(i))
     }
 }
 
 fn ui(f: &mut Frame, app: &mut App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Min(3),
-            Constraint::Length(3),
-        ])
+        .constraints([Constraint::Min(3), Constraint::Length(3)])
         .split(f.size());
 
     let main_chunks = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage(40),
-            Constraint::Percentage(60),
-        ])
+        .constraints([Constraint::Percentage(40), Constraint::Percentage(60)])
         .split(chunks[0]);
 
     let items: Vec<ListItem> = app
         .hosts
         .iter()
-        .map(|e| {
-            ListItem::new(Line::from(Span::raw(e.display_name())))
-        })
+        .map(|e| ListItem::new(Line::from(Span::raw(e.display_name()))))
         .collect();
 
     let list = List::new(items)
@@ -191,10 +181,7 @@ fn ui(f: &mut Frame, app: &mut App) {
     f.render_widget(help, chunks[1]);
 }
 
-fn run_tui(
-    terminal: &mut Terminal<CrosstermBackend<Stdout>>,
-    app: &mut App,
-) -> io::Result<()> {
+fn run_tui(terminal: &mut Terminal<CrosstermBackend<Stdout>>, app: &mut App) -> io::Result<()> {
     loop {
         terminal.draw(|f| ui(f, app))?;
         if let Event::Key(key) = event::read()? {
@@ -221,9 +208,7 @@ fn run_tui(
 
 fn main() -> io::Result<()> {
     let args = Args::parse();
-    let config_path = args
-        .config
-        .unwrap_or_else(default_config_path);
+    let config_path = args.config.unwrap_or_else(default_config_path);
 
     let hosts = parse_config(&config_path).map_err(|e| {
         io::Error::new(

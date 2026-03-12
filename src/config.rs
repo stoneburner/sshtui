@@ -77,10 +77,7 @@ pub fn parse_config_str(content: &str) -> Vec<HostEntry> {
                 }
             }
             let value = trimmed[5..].trim();
-            let names: Vec<String> = value
-                .split_whitespace()
-                .map(|s| s.to_string())
-                .collect();
+            let names: Vec<String> = value.split_whitespace().map(|s| s.to_string()).collect();
             if names.is_empty() {
                 current = None;
                 continue;
@@ -150,7 +147,10 @@ Host host-a
         assert_eq!(entries[0].display_name(), "host-a");
         assert_eq!(entries[0].hostname.as_deref(), Some("192.168.1.10"));
         assert_eq!(entries[0].user.as_deref(), Some("pi"));
-        assert_eq!(entries[0].identity_file.as_deref(), Some("~/.ssh/id_ed25519_sk"));
+        assert_eq!(
+            entries[0].identity_file.as_deref(),
+            Some("~/.ssh/id_ed25519_sk")
+        );
     }
 
     #[test]
@@ -171,7 +171,10 @@ Host host-a
     fn test_parse_example_config() {
         let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("example_config");
         let entries = parse_config(&path).expect("example_config must exist and be readable");
-        assert!(!entries.is_empty(), "example_config must contain at least one connectable host");
+        assert!(
+            !entries.is_empty(),
+            "example_config must contain at least one connectable host"
+        );
         assert_eq!(entries[0].display_name(), "host-a");
         assert_eq!(entries.last().map(|e| e.display_name()), Some("minimal"));
         assert!(
