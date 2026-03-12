@@ -211,10 +211,7 @@ fn main() -> io::Result<()> {
     let config_path = args.config.unwrap_or_else(default_config_path);
 
     let hosts = parse_config(&config_path).map_err(|e| {
-        io::Error::new(
-            io::ErrorKind::Other,
-            format!("Failed to read config {:?}: {}", config_path, e),
-        )
+        io::Error::other(format!("Failed to read config {:?}: {}", config_path, e))
     })?;
 
     if hosts.is_empty() {
@@ -243,9 +240,7 @@ fn main() -> io::Result<()> {
     )?;
     terminal.show_cursor()?;
 
-    if let Err(e) = result {
-        return Err(e);
-    }
+    result?;
 
     if let Some(host) = app.connect {
         drop(terminal);
