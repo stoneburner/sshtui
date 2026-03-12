@@ -210,9 +210,8 @@ fn main() -> io::Result<()> {
     let args = Args::parse();
     let config_path = args.config.unwrap_or_else(default_config_path);
 
-    let hosts = parse_config(&config_path).map_err(|e| {
-        io::Error::other(format!("Failed to read config {:?}: {}", config_path, e))
-    })?;
+    let hosts = parse_config(&config_path)
+        .map_err(|e| io::Error::other(format!("Failed to read config {:?}: {}", config_path, e)))?;
 
     if hosts.is_empty() {
         eprintln!("No connectable hosts found in {:?}", config_path);
