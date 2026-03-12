@@ -93,20 +93,17 @@ jobs:
         with:
           path: artifacts
 
-      - name: Unpack and list
+      - name: Prepare release assets
         run: |
-          for d in artifacts/*/; do
-            (cd "$d" && tar xzvf *.tar.gz)
-          done
-          find artifacts -type f -executable
-          find artifacts -type f -name "*.tar.gz"
+          mkdir -p release
+          cp artifacts/*/*.tar.gz release/
+          ls -la release/
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           draft: false
           generate_release_notes: true
-          files: |
-            artifacts/*/*.tar.gz
+          files: release/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
