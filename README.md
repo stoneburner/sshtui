@@ -4,6 +4,17 @@ Terminal UI to pick an SSH host from your config and connect. Reads `~/.ssh/conf
 
 ![sshtui screenshot](screenshot.png)
 
+## Install
+
+**Homebrew** (macOS; replace `yourusername` with the repo owner):
+
+```bash
+brew tap yourusername/sshtui
+brew install sshtui
+```
+
+See [HOMEBREW.md](HOMEBREW.md) for details and how to update the formula when releasing.
+
 ## Build
 
 ```bash

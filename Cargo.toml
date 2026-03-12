@@ -3,6 +3,9 @@ name = "sshtui"
 version = "0.1.0"
 edition = "2021"
 description = "TUI to pick and connect to SSH hosts from ~/.ssh/config"
+license = "MIT"
+repository = "https://github.com/yourusername/sshtui"
+readme = "README.md"
 
 [dependencies]
 ratatui = "0.27"

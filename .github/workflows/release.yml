@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            artifact: sshtui-x86_64-unknown-linux-gnu
+          - os: ubuntu-22.04
+            target: aarch64-unknown-linux-gnu
+            artifact: sshtui-aarch64-unknown-linux-gnu
+          - os: macos-12
+            target: x86_64-apple-darwin
+            artifact: sshtui-x86_64-apple-darwin
+          - os: macos-14
+            target: aarch64-apple-darwin
+            artifact: sshtui-aarch64-apple-darwin
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@2
+        with:
+          workspaces: .
+
+      - name: Build (Linux x86_64)
+        if: matrix.os == 'ubuntu-22.04' && matrix.target == 'x86_64-unknown-linux-gnu'
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Build (Linux aarch64 with cross)
+        if: matrix.os == 'ubuntu-22.04' && matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          cargo install cross
+          cross build --target ${{ matrix.target }} --release
+
+      - name: Build (macOS)
+        if: matrix.os != 'ubuntu-22.04'
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Prepare archive (Linux)
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          mkdir -p staging
+          cp target/${{ matrix.target }}/release/sshtui staging/
+          tar czvf ${{ matrix.artifact }}.tar.gz -C staging sshtui
+
+      - name: Prepare archive (macOS)
+        if: matrix.os != 'ubuntu-22.04'
+        run: |
+          mkdir -p staging
+          cp target/${{ matrix.target }}/release/sshtui staging/
+          tar czvf ${{ matrix.artifact }}.tar.gz -C staging sshtui
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.tar.gz
+
+  release:
+    name: Create release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@4
+        with:
+          path: artifacts
+
+      - name: Unpack and list
+        run: |
+          for d in artifacts/*/; do
+            (cd "$d" && tar xzvf *.tar.gz)
+          done
+          find artifacts -type f -executable
+          find artifacts -type f -name "*.tar.gz"
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          generate_release_notes: true
+          files: |
+            artifacts/*/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
