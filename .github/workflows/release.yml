@@ -74,7 +74,7 @@ jobs:
           tar czvf ${{ matrix.artifact }}.tar.gz -C staging sshtui
 
       - name: Upload artifact
-        uses: actions/upload-artifact@4
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}.tar.gz
@@ -89,7 +89,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download all artifacts
-        uses: actions/download-artifact@4
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
