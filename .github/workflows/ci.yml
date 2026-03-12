@@ -1,5 +1,6 @@
 name: CI
 
+
 on:
   push:
     branches: [main, master]
@@ -8,6 +9,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   check:

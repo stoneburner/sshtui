@@ -9,7 +9,7 @@ Terminal UI to pick an SSH host from your config and connect. Reads `~/.ssh/conf
 **Homebrew** (macOS; replace `yourusername` with the repo owner):
 
 ```bash
-brew tap yourusername/sshtui
+brew tap stoneburner/sshtui
 brew install sshtui
 ```
 
