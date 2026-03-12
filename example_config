@@ -1,0 +1,83 @@
+# SSH Connection pooling for faster additional connections to a machine
+ControlMaster auto
+ControlPath /tmp/ssh_mux_%h_%p_%r
+
+# This makes subsequent connections go faster
+ControlPersist 2h
+
+# Make it so ssh-ing from one server to another passes keys around automagically
+Host *
+ForwardAgent yes
+
+# Get rid of SSH connection delays
+GSSAPIAuthentication no
+
+# Stop timing out connections
+ServerAliveInterval 300
+ServerAliveCountMax 20
+
+# Use less encryption on servers I cant get to off-network
+Host nf* 10.* 172.* 192.168.*
+
+Host host-a
+	Hostname 192.168.1.10
+	User pi
+	IdentityFile ~/.ssh/id_ed25519_sk
+
+Host host-b
+	Hostname 192.168.1.11
+	User pi
+	IdentityFile ~/.ssh/id_ed25519_sk
+
+Host host-c
+	Hostname server.example.com
+	User deploy
+	Port 2233
+
+Host server
+	Hostname 192.168.1.100
+	User admin
+
+Host host-d
+	Hostname device.local
+	User pi
+
+Host storage
+	Hostname 192.168.1.200
+	Port 2245
+	User admin
+
+Host web
+	Hostname www.example.com
+	Port 2245
+	User root
+	VisualHostKey yes
+	Compression yes
+	LocalForward localhost:5432 localhost:5432
+
+Host backup
+	Hostname 10.0.0.50
+	User backup
+	Compression yes
+
+Host camera
+	Hostname 192.168.1.141
+	User pi
+
+Host workstation
+	Hostname 192.168.1.8
+	User admin
+
+Host router
+	Hostname 192.168.1.1
+	User root
+	IdentityFile ~/.ssh/id_rsa_example
+
+Host jump
+	Hostname bastion.example.com
+	User jump
+	Port 22
+	ProxyJump none
+
+Host minimal
+	Hostname 192.168.1.99
