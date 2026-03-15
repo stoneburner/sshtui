@@ -153,3 +153,26 @@ jobs:
             release/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Formula SHAs
+        run: |
+          MACOS_SHA=$(sha256sum release/sshtui-aarch64-apple-darwin.zip 2>/dev/null | cut -d' ' -f1)
+          LINUX_X64_SHA=$(sha256sum release/sshtui-x86_64-unknown-linux-gnu.tar.gz 2>/dev/null | cut -d' ' -f1)
+          LINUX_ARM64_SHA=$(sha256sum release/sshtui-aarch64-unknown-linux-gnu.tar.gz 2>/dev/null | cut -d' ' -f1)
+          [ -z "$MACOS_SHA" ] && [ -z "$LINUX_X64_SHA" ] && [ -z "$LINUX_ARM64_SHA" ] && echo "No release assets, skipping" && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout ${{ github.event.repository.default_branch }}
+          git pull origin ${{ github.event.repository.default_branch }}
+          [ -n "$MACOS_SHA" ] && sed -i '/apple-darwin.zip/,/sha256/ s/sha256 "[^"]*"/sha256 "'"$MACOS_SHA"'"/' Formula/sshtui.rb
+          [ -n "$LINUX_X64_SHA" ] && sed -i '/x86_64-unknown-linux-gnu.tar.gz/,/sha256/ s/sha256 "[^"]*"/sha256 "'"$LINUX_X64_SHA"'"/' Formula/sshtui.rb
+          [ -n "$LINUX_ARM64_SHA" ] && sed -i '/aarch64-unknown-linux-gnu.tar.gz/,/sha256/ s/sha256 "[^"]*"/sha256 "'"$LINUX_ARM64_SHA"'"/' Formula/sshtui.rb
+          if git diff --quiet Formula/sshtui.rb; then
+            echo "No Formula changes"
+          else
+            git add Formula/sshtui.rb
+            git commit -m "Update Formula SHAs for ${{ github.ref_name }}"
+            git push origin ${{ github.event.repository.default_branch }}
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

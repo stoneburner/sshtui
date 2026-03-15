@@ -1,39 +1,34 @@
 # Homebrew
 
-## Install (users)
-
-After the first release is published and the formula has real SHA256 values:
-
 ```bash
-brew tap yourusername/sshtui
+brew tap YOUR_USERNAME/sshtui
 brew install sshtui
 ```
 
-Replace `yourusername` with the GitHub username or org that owns the repo.
+---
 
-## Maintainers: updating the formula
+## Release Steps
 
-1. In `Formula/sshtui.rb`, replace every `yourusername` with your GitHub username or org.
+1. **Create a release**
+   Push a tag (e.g. `v1.0.0`) so the Release workflow runs and uploads binaries to GitHub Releases.
 
-2. After creating a new release (e.g. v0.2.0), get the SHA256 for each asset:
+2. **Formula SHAs**
+   The Release workflow has an **Update Formula SHAs** step that commits updated SHA256 values to the default branch after attaching assets. So you normally do not need to fill them in by hand.
+   If you need to do it manually, after the release is published run (with your tag and repo):
 
    ```bash
-   curl -sL "https://github.com/YOUR_USER/sshtui/releases/download/v0.2.0/sshtui-x86_64-apple-darwin.tar.gz" | shasum -a 256
-   curl -sL "https://github.com/YOUR_USER/sshtui/releases/download/v0.2.0/sshtui-aarch64-apple-darwin.tar.gz" | shasum -a 256
-   curl -sL "https://github.com/YOUR_USER/sshtui/releases/download/v0.2.0/sshtui-x86_64-unknown-linux-gnu.tar.gz" | shasum -a 256
-   curl -sL "https://github.com/YOUR_USER/sshtui/releases/download/v0.2.0/sshtui-aarch64-unknown-linux-gnu.tar.gz" | shasum -a 256
+   curl -sL "https://github.com/YOUR_USER/sshtui/releases/download/v1.0.0/sshtui-x86_64-unknown-linux-gnu.tar.gz" | shasum -a 256
+   curl -sL "https://github.com/YOUR_USER/sshtui/releases/download/v1.0.0/sshtui-aarch64-unknown-linux-gnu.tar.gz" | shasum -a 256
+   curl -sL "https://github.com/YOUR_USER/sshtui/releases/download/v1.0.0/sshtui-aarch64-apple-darwin.zip" | shasum -a 256
    ```
 
-3. Update `version "X.Y.Z"` and all four `url` and `sha256` lines in the formula (or use a script to substitute).
+   Put each output (first column) into the matching `sha256 "..."` line in `Formula/sshtui.rb`. macOS is a notarized zip; Linux assets are tar.gz.
 
-4. Commit and push the formula changes. Users with the tap will get the update on `brew upgrade sshtui`.
+3. **Commit and push** the formula. After that, `brew install sshtui` (with the tap) will work.
 
-## First-time setup (before first release)
+4. **For new versions**
+   Bump `version "X.Y.Z"` and the URLs in the formula, recompute the SHAs for the new release assets, update the formula, and push. Users get updates with `brew upgrade sshtui`.
 
-The formula ships with placeholder SHA256 values (`REPLACE_WITH_..._SHA`). Until you:
+---
 
-1. Create a release (e.g. tag `v0.1.0` and push so the Release workflow builds assets),
-2. Compute the four SHAs as above,
-3. Replace the placeholders in `Formula/sshtui.rb`,
-
-`brew install sshtui` will fail. Do the steps in "Maintainers: updating the formula" once the first release is available.
+macOS binaries are **signed and notarized** in CI. To set that up, see [docs/MACOS_SIGNING.md](docs/MACOS_SIGNING.md).

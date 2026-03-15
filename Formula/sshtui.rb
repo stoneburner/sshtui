@@ -10,7 +10,7 @@ class Sshtui < Formula
   on_macos do
     on_arm do
       url "https://github.com/stoneburner/sshtui/releases/download/v1.0.2/sshtui-aarch64-apple-darwin.zip"
-      sha256 "REPLACE_WITH_ARM64_MACOS_SHA"
+      sha256 "6aebc8d122a11631170e9bde14f198be71f4f97316c1844ed7d4181dee89ff11"
     end
   end
 
