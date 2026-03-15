@@ -106,7 +106,6 @@ jobs:
             --issuer "$APPLE_NOTARY_ISSUER_ID" \
             --key notary_key.p8 \
             --wait
-          xcrun stapler staple ${{ matrix.artifact }}.zip
           rm notary_key.p8
 
       - name: Upload artifact (Linux)
