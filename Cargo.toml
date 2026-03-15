@@ -1,6 +1,6 @@
 [package]
 name = "sshtui"
-version = "1.0.0"
+version = "1.0.2"
 edition = "2021"
 description = "TUI to pick and connect to SSH hosts from ~/.ssh/config"
 license = "MIT"
