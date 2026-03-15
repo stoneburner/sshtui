@@ -32,6 +32,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set version from tag
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          sed -i 's/^version = .*/version = "'"$VERSION"'"/' Cargo.toml
+          grep '^version = ' Cargo.toml
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -154,8 +160,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update Formula SHAs
+      - name: Update version and Formula (version, URLs, SHAs)
         run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
           MACOS_SHA=$(sha256sum release/sshtui-aarch64-apple-darwin.zip 2>/dev/null | cut -d' ' -f1)
           LINUX_X64_SHA=$(sha256sum release/sshtui-x86_64-unknown-linux-gnu.tar.gz 2>/dev/null | cut -d' ' -f1)
           LINUX_ARM64_SHA=$(sha256sum release/sshtui-aarch64-unknown-linux-gnu.tar.gz 2>/dev/null | cut -d' ' -f1)
@@ -164,14 +172,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout ${{ github.event.repository.default_branch }}
           git pull origin ${{ github.event.repository.default_branch }}
+          sed -i 's/^version = .*/version = "'"$VERSION"'"/' Cargo.toml
+          sed -i 's/^  version "[^"]*"/  version "'"$VERSION"'"/' Formula/sshtui.rb
+          sed -i 's|/releases/download/v[0-9]*\.[0-9]*\.[0-9]*/|/releases/download/v'"$VERSION"'/|g' Formula/sshtui.rb
           [ -n "$MACOS_SHA" ] && sed -i '/apple-darwin.zip/,/sha256/ s/sha256 "[^"]*"/sha256 "'"$MACOS_SHA"'"/' Formula/sshtui.rb
           [ -n "$LINUX_X64_SHA" ] && sed -i '/x86_64-unknown-linux-gnu.tar.gz/,/sha256/ s/sha256 "[^"]*"/sha256 "'"$LINUX_X64_SHA"'"/' Formula/sshtui.rb
           [ -n "$LINUX_ARM64_SHA" ] && sed -i '/aarch64-unknown-linux-gnu.tar.gz/,/sha256/ s/sha256 "[^"]*"/sha256 "'"$LINUX_ARM64_SHA"'"/' Formula/sshtui.rb
-          if git diff --quiet Formula/sshtui.rb; then
-            echo "No Formula changes"
+          if git diff --quiet Cargo.toml Formula/sshtui.rb; then
+            echo "No version or Formula changes"
           else
-            git add Formula/sshtui.rb
-            git commit -m "Update Formula SHAs for ${{ github.ref_name }}"
+            git add Cargo.toml Formula/sshtui.rb
+            git commit -m "Release ${{ github.ref_name }}"
             git push origin ${{ github.event.repository.default_branch }}
           fi
         env:
