@@ -8,6 +8,6 @@ repository = "https://github.com/yourusername/sshtui"
 readme = "README.md"
 
 [dependencies]
-ratatui = "0.27"
+ratatui = "0.30"
 crossterm = "0.29"
 clap = { version = "4", features = ["derive"] }
