@@ -12,9 +12,6 @@ Terminal UI to pick an SSH host from your config and connect. Reads `~/.ssh/conf
 brew tap stoneburner/sshtui
 brew install sshtui
 ```
-
-See [HOMEBREW.md](HOMEBREW.md) for details and how to update the formula when releasing.
-
 ## Build
 
 ```bash
