@@ -91,7 +91,7 @@ fn ui(f: &mut Frame, app: &mut App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Min(3), Constraint::Length(3)])
-        .split(f.size());
+        .split(f.area());
 
     let main_chunks = Layout::default()
         .direction(Direction::Horizontal)
