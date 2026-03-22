@@ -73,6 +73,18 @@ impl App {
         self.list_state.select(i);
     }
 
+    fn first(&mut self) {
+        if !self.hosts.is_empty() {
+            self.list_state.select(Some(0));
+        }
+    }
+
+    fn last(&mut self) {
+        if !self.hosts.is_empty() {
+            self.list_state.select(Some(self.hosts.len() - 1));
+        }
+    }
+
     fn connect_selected(&mut self) {
         if let Some(i) = self.list_state.selected() {
             if let Some(entry) = self.hosts.get(i) {
@@ -171,6 +183,10 @@ fn ui(f: &mut Frame, app: &mut App) {
         Span::raw("down  "),
         Span::styled("k/Up: ", Style::default().fg(Color::DarkGray)),
         Span::raw("up  "),
+        Span::styled("Home/g: ", Style::default().fg(Color::DarkGray)),
+        Span::raw("first  "),
+        Span::styled("End/G: ", Style::default().fg(Color::DarkGray)),
+        Span::raw("last  "),
         Span::styled("Enter: ", Style::default().fg(Color::DarkGray)),
         Span::raw("connect  "),
         Span::styled("q/Esc: ", Style::default().fg(Color::DarkGray)),
@@ -195,6 +211,8 @@ fn run_tui(terminal: &mut Terminal<CrosstermBackend<Stdout>>, app: &mut App) -> 
                 }
                 KeyCode::Char('j') | KeyCode::Down => app.next(),
                 KeyCode::Char('k') | KeyCode::Up => app.previous(),
+                KeyCode::Home | KeyCode::Char('g') => app.first(),
+                KeyCode::End | KeyCode::Char('G') => app.last(),
                 KeyCode::Enter => {
                     app.connect_selected();
                     break;
